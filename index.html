@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Talking Fliers — 5-Day Training</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff;
+    --card:#ffffff;
+    --line:rgba(11,31,77,0.12);
+    --ink:#0b1f3a;
+    --green:#16a34a;
+    --green-deep:#0e7c3a;
+    --green-bright:#22c55e;
+    --green-tint:rgba(22,163,74,0.10);
+    --navy:#0b1f4d;
+    --navy-deep:#081533;
+    --navy-soft:#eef2fc;
+    --text:#0b1f3a;
+    --dim:#57626f;
+    --radius:20px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Plus Jakarta Sans', sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:78px;
+  }
+  h1,h2,h3,.display{font-family:'Unbounded', sans-serif;}
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  :focus-visible{outline:2px solid var(--navy); outline-offset:3px;}
+  .wrap{max-width:520px; margin:0 auto; padding:0 22px; position:relative;}
+
+  /* ===== ambient background ===== */
+  .glow{position:fixed; border-radius:50%; filter:blur(100px); opacity:0.4; z-index:0; pointer-events:none;}
+  .glow-1{width:360px; height:360px; background:#bdeccd; top:-120px; left:-140px; animation:drift1 16s ease-in-out infinite alternate;}
+  .glow-2{width:320px; height:320px; background:#cdd9ff; top:640px; right:-150px; animation:drift2 20s ease-in-out infinite alternate;}
+  @keyframes drift1{from{transform:translate(0,0);} to{transform:translate(40px,60px);}}
+  @keyframes drift2{from{transform:translate(0,0);} to{transform:translate(-30px,-50px);}}
+  @media (prefers-reduced-motion: reduce){
+    .glow-1,.glow-2{animation:none;}
+  }
+
+  section{position:relative; z-index:1; padding:56px 0;}
+
+  .reveal{
+    opacity:0;
+    transform:translateY(34px) scale(.965);
+    filter:blur(7px);
+    transition:opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1), filter .85s cubic-bezier(.16,1,.3,1);
+    will-change:opacity, transform, filter;
+  }
+  .reveal.visible{opacity:1; transform:none; filter:blur(0);}
+  .d0{transition-delay:0s;}
+  .d1{transition-delay:.08s;}
+  .d2{transition-delay:.16s;}
+  .d3{transition-delay:.24s;}
+  .d4{transition-delay:.32s;}
+  .d5{transition-delay:.4s;}
+  .d6{transition-delay:.48s;}
+
+  @keyframes heroUp{
+    from{opacity:0; transform:translateY(28px) scale(.97); filter:blur(6px);}
+    to{opacity:1; transform:none; filter:blur(0);}
+  }
+  .hero-in{opacity:0; animation:heroUp .9s cubic-bezier(.16,1,.3,1) forwards;}
+  .hero-in.d0{animation-delay:.05s;}
+  .hero-in.d1{animation-delay:.16s;}
+  .hero-in.d2{animation-delay:.3s;}
+  .hero-in.d3{animation-delay:.46s;}
+  .hero-in.d4{animation-delay:.62s;}
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal, .hero-in{opacity:1 !important; transform:none !important; filter:none !important; transition:none !important; animation:none !important;}
+  }
+
+  .topstrip{
+    background:linear-gradient(90deg, var(--green), var(--navy));
+    color:#ffffff;
+    font-weight:700;
+    font-size:12.5px;
+    letter-spacing:.04em;
+    text-align:center;
+    padding:9px 14px;
+    position:relative;
+    z-index:2;
+  }
+
+  /* ===== HERO ===== */
+  .hero{padding-top:38px; padding-bottom:20px;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--green-deep); border:1px solid rgba(22,163,74,0.3); background:var(--green-tint);
+    padding:7px 14px; border-radius:100px; margin-bottom:20px;
+  }
+  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--navy); box-shadow:0 0 0 0 rgba(11,31,77,.5); animation:pulse-dot 1.8s infinite;}
+  @keyframes pulse-dot{0%{box-shadow:0 0 0 0 rgba(11,31,77,.45);}70%{box-shadow:0 0 0 8px rgba(11,31,77,0);}100%{box-shadow:0 0 0 0 rgba(11,31,77,0);}}
+
+  .hero h1{
+    font-size:clamp(30px, 8vw, 44px);
+    line-height:1.08;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .hero h1 span{
+    background:linear-gradient(90deg, var(--green-deep), var(--navy));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero p.sub{
+    margin-top:16px; font-size:16px; line-height:1.6; color:var(--dim); max-width:44ch;
+  }
+
+  /* signature talking-flier mockup */
+  .flier-stage{
+    margin:34px auto 8px; width:220px; height:280px; position:relative;
+  }
+  .flier-card{
+    width:100%; height:100%; border-radius:22px;
+    background:linear-gradient(160deg, #12275c, #0b1f4d);
+    border:1px solid rgba(11,31,77,0.15);
+    box-shadow:0 30px 60px -20px rgba(11,31,77,0.4), 0 0 0 1px rgba(255,255,255,0.05) inset;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+    padding:16px; position:relative; overflow:hidden;
+    animation:float 4.5s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-1.2deg);} 50%{transform:translateY(-10px) rotate(1deg);}}
+  .flier-card::before{
+    content:''; position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(22,163,74,0.35), transparent 55%),
+      radial-gradient(circle at 75% 65%, rgba(56,111,255,0.35), transparent 55%);
+  }
+  .flier-face{
+    width:64px; height:64px; border-radius:50%;
+    background:linear-gradient(145deg,#d7ffe4,#16a34a);
+    position:relative; z-index:2; margin-bottom:14px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+  }
+  .eq{
+    display:flex; align-items:flex-end; gap:4px; height:22px; position:relative; z-index:2; margin-bottom:14px;
+  }
+  .eq span{width:5px; border-radius:3px; background:var(--green-bright); display:block; animation:bounce 1s infinite ease-in-out;}
+  .eq span:nth-child(1){animation-delay:0s; height:10px;}
+  .eq span:nth-child(2){animation-delay:.15s; height:22px;}
+  .eq span:nth-child(3){animation-delay:.3s; height:14px;}
+  .eq span:nth-child(4){animation-delay:.45s; height:20px;}
+  .eq span:nth-child(5){animation-delay:.6s; height:9px;}
+  @keyframes bounce{0%,100%{transform:scaleY(0.4);} 50%{transform:scaleY(1);}}
+  .flier-label{
+    position:relative; z-index:2; font-family:'Unbounded'; font-size:11px; font-weight:700;
+    letter-spacing:.06em; color:#ffffff; background:rgba(22,163,74,0.92); padding:6px 10px; border-radius:100px;
+  }
+  .ring{position:absolute; border:1.5px solid rgba(11,31,77,0.45); border-radius:50%; z-index:1;}
+  .ring1{width:90px; height:90px; top:36px; left:50%; transform:translateX(-50%); animation:ringpulse 2.4s ease-out infinite;}
+  .ring2{width:90px; height:90px; top:36px; left:50%; transform:translateX(-50%); animation:ringpulse 2.4s ease-out infinite; animation-delay:1.2s;}
+  @keyframes ringpulse{0%{opacity:.7; transform:translateX(-50%) scale(0.7);} 100%{opacity:0; transform:translateX(-50%) scale(1.6);}}
+  @media (prefers-reduced-motion: reduce){
+    .flier-card, .eq span, .ring1, .ring2{animation:none;}
+  }
+
+  /* ===== CTA button — always green ===== */
+  .cta-btn{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    background:linear-gradient(90deg,var(--green),var(--green-deep));
+    color:#fff; font-weight:700; font-size:16px; font-family:'Unbounded';
+    padding:16px 22px; border-radius:100px; width:100%;
+    box-shadow:0 14px 30px -10px rgba(22,163,74,0.5);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .cta-btn:hover{transform:translateY(-2px); box-shadow:0 18px 36px -8px rgba(22,163,74,0.6);}
+  .cta-btn svg{width:20px; height:20px; flex-shrink:0;}
+  .cta-note{text-align:center; font-size:12.5px; color:var(--dim); margin-top:10px;}
+
+  .price-row{
+    display:flex; align-items:baseline; justify-content:center; gap:10px; margin:22px 0 16px;
+  }
+  .price-new{font-family:'Unbounded'; font-size:30px; font-weight:800; color:var(--green-bright);}
+  .price-tag{font-size:11px; color:rgba(255,255,255,0.6); text-align:center; margin-bottom:6px; text-transform:uppercase; letter-spacing:.08em;}
+
+  /* ===== section headers ===== */
+  .eyebrow-alt{font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--navy); margin-bottom:10px;}
+  .sec-title{font-size:24px; font-weight:800; line-height:1.2; margin-bottom:12px; color:var(--ink);}
+  .sec-sub{color:var(--dim); font-size:15px; line-height:1.6; margin-bottom:28px;}
+
+  /* ===== agitate ===== */
+  .agitate-list{list-style:none; display:flex; flex-direction:column; gap:14px;}
+  .agitate-list li{
+    display:flex; gap:12px; align-items:flex-start; font-size:15px; color:var(--dim); line-height:1.55;
+  }
+  .agitate-list li::before{content:'✕'; color:var(--navy); font-weight:800; flex-shrink:0; margin-top:1px;}
+  .bridge{
+    margin-top:26px; padding:18px 18px; border-radius:16px;
+    background:linear-gradient(135deg, rgba(22,163,74,0.08), rgba(11,31,77,0.08));
+    border:1px solid var(--line); font-size:15px; line-height:1.6; color:var(--ink);
+  }
+  .bridge strong{color:var(--navy);}
+
+  /* ===== curriculum cards ===== */
+  .curric-grid{display:flex; flex-direction:column; gap:14px;}
+  .curric-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 18px; display:flex; gap:14px; align-items:flex-start;
+    box-shadow:0 6px 20px -12px rgba(11,31,77,0.15);
+    transition:border-color .25s ease, transform .25s ease;
+  }
+  .curric-card:hover{border-color:rgba(22,163,74,0.4); transform:translateY(-2px);}
+  .curric-card .icon{
+    width:44px; height:44px; border-radius:12px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:20px;
+    background:linear-gradient(145deg, rgba(22,163,74,0.16), rgba(11,31,77,0.14));
+  }
+  .curric-card h3{font-size:16px; font-weight:700; margin-bottom:4px; color:var(--ink);}
+  .curric-card p{font-size:13.5px; color:var(--dim); line-height:1.5;}
+  .curric-card.signature{border-color:rgba(11,31,77,0.35); background:linear-gradient(135deg, rgba(11,31,77,0.06), var(--card));}
+  .curric-card.signature .icon{background:linear-gradient(145deg, var(--navy), var(--green));}
+
+  /* ===== video ===== */
+  .phone-frame{
+    width:220px; margin:0 auto; border-radius:28px; padding:10px;
+    background:linear-gradient(160deg,#12275c,#0b1f4d);
+    border:1px solid rgba(11,31,77,0.15); box-shadow:0 30px 60px -25px rgba(11,31,77,0.4);
+  }
+  .phone-frame video{width:100%; aspect-ratio:9/16; object-fit:cover; border-radius:18px; background:#000;}
+  .video-fallback{
+    width:100%; aspect-ratio:9/16; border-radius:18px; background:linear-gradient(150deg,#12275c,#0b1f4d);
+    display:flex; align-items:center; justify-content:center; text-align:center; padding:20px;
+    color:rgba(255,255,255,0.6); font-size:13px; line-height:1.5;
+  }
+
+  /* ===== carousel — contained to the reading column, sizes to each image's own dimensions ===== */
+  .carousel-shell{position:relative;}
+  .carousel-outer{width:100%; max-width:640px; margin:0 auto;}
+  .carousel{
+    display:flex; align-items:center; overflow-x:auto; scroll-snap-type:x mandatory; gap:14px;
+    padding:4px 22px 18px; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .carousel::-webkit-scrollbar{display:none;}
+  .carousel .slide{
+    scroll-snap-align:center; flex:0 0 auto;
+    border-radius:18px; overflow:hidden; border:1px solid var(--line);
+    background:var(--card); box-shadow:0 10px 30px -16px rgba(11,31,77,0.22);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .carousel .slide img{
+    display:block; width:auto; height:auto;
+    max-width:min(78vw, 380px); max-height:min(60vh, 460px);
+  }
+  .slide-fallback{
+    width:220px; height:280px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(150deg,#12275c,#0b1f4d); color:rgba(255,255,255,0.65); font-size:13px; text-align:center; padding:16px;
+  }
+  .dots{display:flex; justify-content:center; gap:7px; margin-top:6px;}
+  .dots span{width:6px; height:6px; border-radius:50%; background:var(--line); transition:background .25s, width .25s;}
+  .dots span.active{background:var(--navy); width:18px; border-radius:4px;}
+  .swipe-hint{text-align:center; font-size:12px; color:var(--dim); margin-top:4px;}
+  .carousel-arrow{
+    display:none; align-items:center; justify-content:center;
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:42px; height:42px; border-radius:50%; background:#ffffff;
+    border:1px solid var(--line); box-shadow:0 10px 24px -10px rgba(11,31,77,0.35);
+    color:var(--navy); font-size:18px; cursor:pointer; z-index:2;
+  }
+  .carousel-arrow:hover{background:var(--navy-soft);}
+  .carousel-arrow.prev{left:6px;}
+  .carousel-arrow.next{right:6px;}
+
+  /* ===== bonuses ===== */
+  .bonus-grid{display:flex; flex-direction:column; gap:14px;}
+  .bonus-card{
+    background:linear-gradient(135deg, var(--navy-soft), var(--card));
+    border:1px solid rgba(11,31,77,0.2); border-radius:var(--radius);
+    padding:18px; display:flex; gap:14px; align-items:flex-start;
+  }
+  .bonus-card .tag{
+    font-family:'Unbounded'; font-size:10px; font-weight:700; color:#ffffff;
+    background:var(--navy); padding:3px 8px; border-radius:6px; display:inline-block; margin-bottom:6px;
+  }
+  .bonus-card h3{font-size:15.5px; font-weight:700; margin-bottom:4px; color:var(--ink);}
+  .bonus-card p{font-size:13.5px; color:var(--dim); line-height:1.5;}
+  .bonus-card .num{
+    font-family:'Unbounded'; font-size:22px; font-weight:800; color:rgba(11,31,77,0.3); flex-shrink:0;
+  }
+
+  /* ===== offer / commitment ===== */
+  .offer-box{
+    border-radius:24px; padding:26px 22px; position:relative; overflow:hidden;
+    background:linear-gradient(160deg, #12275c, #0b1f4d); border:1px solid rgba(22,163,74,0.3);
+    color:#ffffff;
+  }
+  .offer-box::after{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(circle at 80% 0%, rgba(22,163,74,0.28), transparent 60%);
+    pointer-events:none;
+  }
+  .offer-inner{position:relative; z-index:1;}
+  .offer-box .eyebrow-alt{color:var(--green-bright);}
+  .offer-box .sec-title{color:#ffffff;}
+  .commit-line{font-size:14.5px; color:rgba(255,255,255,0.78); line-height:1.6; margin-bottom:22px;}
+  .commit-line strong{color:#ffffff;}
+
+  .meta-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;}
+  .meta-item{
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); border-radius:14px; padding:14px;
+  }
+  .meta-item .label{font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,0.55); margin-bottom:6px;}
+  .meta-item .val{font-family:'Unbounded'; font-size:14px; font-weight:700; line-height:1.3; color:#ffffff;}
+  .meta-item.warn{background:var(--green); border-color:var(--green);}
+  .meta-item.warn .label{color:rgba(255,255,255,0.75);}
+  .meta-item.warn .val{color:#ffffff;}
+
+  .countdown{
+    display:flex; gap:8px; justify-content:center; margin-bottom:26px;
+  }
+  .countdown .cd-item{
+    background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.14); border-radius:12px;
+    padding:10px 6px; text-align:center; flex:1; min-width:0;
+  }
+  .countdown .cd-num{font-family:'Unbounded'; font-size:20px; font-weight:800; color:var(--green-bright);}
+  .countdown .cd-lbl{font-size:9.5px; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:.06em; margin-top:2px;}
+
+  /* ===== footer / sticky ===== */
+  footer{padding:34px 0 20px; text-align:center;}
+  footer p{font-size:12px; color:var(--dim); line-height:1.6;}
+
+  .sticky-cta{
+    position:fixed; bottom:0; left:0; right:0; z-index:50;
+    background:rgba(255,255,255,0.92); backdrop-filter:blur(10px);
+    border-top:1px solid var(--line); padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  }
+  .sticky-cta .wrap{padding:0;}
+  .sticky-cta .cta-btn{padding:13px 18px; font-size:14.5px;}
+
+  /* ===================== TABLET ≥641px ===================== */
+  @media (min-width:641px){
+    .wrap{max-width:660px;}
+    section{padding:64px 0;}
+    .sec-title{font-size:27px;}
+    .flier-stage{width:250px; height:310px;}
+    .phone-frame{width:250px;}
+    .curric-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+    .bonus-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+    .carousel-arrow{display:flex;}
+    .offer-box{padding:34px 36px;}
+  }
+
+  /* ===================== DESKTOP ≥1024px ===================== */
+  @media (min-width:1024px){
+    .wrap{max-width:820px;}
+    .hero .wrap{
+      display:grid;
+      grid-template-columns:1.05fr 360px;
+      column-gap:56px;
+      align-items:center;
+      grid-template-areas:
+        "badge visual"
+        "title visual"
+        "sub visual"
+        "cta visual";
+      max-width:960px;
+    }
+    .hero .eyebrow{grid-area:badge; align-self:end;}
+    .hero h1{grid-area:title;}
+    .hero p.sub{grid-area:sub;}
+    .hero-cta{grid-area:cta; align-self:start;}
+    .hero-cta .cta-btn{max-width:340px;}
+    .flier-stage{grid-area:visual; width:300px; height:380px; margin:0;}
+
+    .sec-title{font-size:30px;}
+    .sec-sub{font-size:16px;}
+    .curric-grid{grid-template-columns:repeat(3,1fr);}
+    .bonus-grid{grid-template-columns:repeat(3,1fr);}
+    .phone-frame{width:260px;}
+    .offer-box{padding:44px 52px;}
+    .meta-grid{max-width:520px; margin-left:auto; margin-right:auto;}
+    .price-row, .countdown, .price-tag, .cta-note, .commit-line, .offer-box .sec-title, .offer-box .eyebrow-alt{
+      max-width:560px; margin-left:auto; margin-right:auto;
+    }
+    .offer-box .cta-btn{max-width:420px; margin:0 auto;}
+  }
+</style>
+</head>
+<body>
+
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<div class="topstrip">₦1,000 COMMITMENT FEE · ONLY 20 SEATS · CLOSES SUNDAY</div>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow hero-in d0"><span class="dot"></span>5-DAY TRAINING</div>
+    <h1 class="hero-in d1">Make Your Fliers <span>Talk.</span><br>Make Them Sell.</h1>
+    <p class="sub hero-in d2">Over 5 days, learn to design, animate and voice AI-powered fliers that stop the scroll, hold attention, and move people to buy — no design or editing background needed.</p>
+
+    <div class="flier-stage hero-in d3">
+      <div class="ring ring1"></div>
+      <div class="ring ring2"></div>
+      <div class="flier-card">
+        <div class="flier-face"></div>
+        <div class="eq"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="flier-label">🔊 THIS FLIER TALKS</div>
+      </div>
+    </div>
+
+    <div class="hero-in d4 hero-cta" style="margin-top:30px;">
+      <a class="cta-btn" href="https://wa.link/rm42fi" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.001 2C6.478 2 2 6.478 2 12c0 1.887.525 3.7 1.52 5.288L2 22l4.85-1.472A9.955 9.955 0 0012 22c5.523 0 10-4.478 10-10S17.523 2 12.001 2zm0 18.09c-1.68 0-3.31-.452-4.735-1.31l-.34-.202-3.313 1.006 1.017-3.222-.221-.33A8.075 8.075 0 013.91 12c0-4.468 3.632-8.09 8.091-8.09 4.459 0 8.09 3.622 8.09 8.09 0 4.469-3.631 8.09-8.09 8.09z"/></svg>
+        REGISTER NOW
+      </a>
+      <p class="cta-note">Tap to chat on WhatsApp & secure your seat</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= AGITATE ================= -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow-alt reveal d0">The Problem</div>
+    <h2 class="sec-title reveal d1">Your fliers are getting scrolled past.</h2>
+    <ul class="agitate-list">
+      <li class="reveal d2">A flat, silent image competing against video, motion and sound on every feed</li>
+      <li class="reveal d3">Hours spent on Canva templates that still look like everyone else's</li>
+      <li class="reveal d4">Paying a designer or editor for every single post</li>
+      <li class="reveal d5">Knowing "AI" is changing content — but not knowing where to actually start</li>
+    </ul>
+    <div class="bridge reveal d6">
+      What if the same flier could <strong>speak</strong>, move, and pull the eye in the first 2 seconds — and you built it yourself, in minutes, using AI?
+    </div>
+  </div>
+</section>
+
+<!-- ================= CURRICULUM ================= -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow-alt reveal d0">Inside The Training</div>
+    <h2 class="sec-title reveal d1">Everything you'll learn in 5 days</h2>
+    <p class="sec-sub reveal d2">A hands-on curriculum built around one goal: turning you into someone who can create scroll-stopping, sales-driving content on demand.</p>
+
+    <div class="curric-grid">
+      <div class="curric-card reveal d0">
+        <div class="icon">⚡</div>
+        <div><h3>Vibe Coding</h3><p>Build simple AI-powered tools and pages without needing to be a developer.</p></div>
+      </div>
+      <div class="curric-card reveal d1">
+        <div class="icon">🎨</div>
+        <div><h3>Professional Flier Design</h3><p>Layout, color and hierarchy principles that make a flier look premium — instantly.</p></div>
+      </div>
+      <div class="curric-card reveal d2">
+        <div class="icon">🎬</div>
+        <div><h3>Advertising Videos</h3><p>Turn a single flier into a scroll-stopping video ad using AI.</p></div>
+      </div>
+      <div class="curric-card signature reveal d3">
+        <div class="icon">🗣️</div>
+        <div><h3>Talking Fliers</h3><p>The signature skill of this training — fliers that speak directly to your audience.</p></div>
+      </div>
+      <div class="curric-card reveal d4">
+        <div class="icon">✨</div>
+        <div><h3>Attention-Grabbing Photo Editing</h3><p>Edit professional pictures that hold the eye longer than three seconds.</p></div>
+      </div>
+      <div class="curric-card reveal d5">
+        <div class="icon">💰</div>
+        <div><h3>Monetisation</h3><p>How to turn every skill above into consistent income, on and off social media.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VIDEO ================= -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow-alt reveal d0">See It In Action</div>
+    <h2 class="sec-title reveal d1">This is an example of what you will learn</h2>
+    <p class="sec-sub reveal d2">A quick walkthrough of the exact process you'll learn inside the training.</p>
+
+    <div class="phone-frame reveal d3">
+      <video controls playsinline preload="metadata" poster="">
+        <source src="ai.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CAROUSEL ================= -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow-alt reveal d0">Sample Work</div>
+    <h2 class="sec-title reveal d1">Other things you can create</h2>
+  </div>
+  <div class="carousel-shell reveal d2">
+    <button class="carousel-arrow prev" id="prevBtn" aria-label="Previous image">‹</button>
+    <div class="carousel-outer">
+      <div class="carousel" id="carousel">
+        <div class="slide"><img src="1.png" alt="Sample talking flier 1" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'slide-fallback',textContent:'1.png'}))"></div>
+        <div class="slide"><img src="2.png" alt="Sample talking flier 2" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'slide-fallback',textContent:'2.png'}))"></div>
+        <div class="slide"><img src="3.png" alt="Sample talking flier 3" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'slide-fallback',textContent:'3.png'}))"></div>
+        <div class="slide"><img src="4.png" alt="Sample talking flier 4" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'slide-fallback',textContent:'4.png'}))"></div>
+        <div class="slide"><img src="5.png" alt="Sample talking flier 5" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'slide-fallback',textContent:'5.png'}))"></div>
+      </div>
+    </div>
+    <button class="carousel-arrow next" id="nextBtn" aria-label="Next image">›</button>
+  </div>
+  <div class="wrap">
+    <div class="dots" id="dots"></div>
+    <p class="swipe-hint reveal d3">Swipe to see more →</p>
+  </div>
+</section>
+
+<!-- ================= BONUSES ================= -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow-alt reveal d0">Register Today & Unlock</div>
+    <h2 class="sec-title reveal d1">3 bonuses, free with your seat</h2>
+
+    <div class="bonus-grid">
+      <div class="bonus-card reveal d2">
+        <div class="num">01</div>
+        <div><span class="tag">BONUS</span><h3>AI Prompt Factory</h3><p>My personal library of tested prompts for fliers, videos and voice — plug in and use immediately.</p></div>
+      </div>
+      <div class="bonus-card reveal d3">
+        <div class="num">02</div>
+        <div><span class="tag">BONUS</span><h3>Generative AI Masterplan</h3><p>Free access to my book, Generative AI Masterplan — the complete guide to using AI to create, sell and scale.</p></div>
+      </div>
+      <div class="bonus-card reveal d4">
+        <div class="num">03</div>
+        <div><span class="tag">BONUS</span><h3>Personalised Mentorship</h3><p>Direct guidance from me as you apply what you learn — not a generic group chat.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= OFFER ================= -->
+<section>
+  <div class="wrap">
+    <div class="offer-box reveal d0">
+      <div class="offer-inner">
+        <div class="eyebrow-alt">The Offer</div>
+        <h2 class="sec-title">This isn't a training fee.<br>It's a commitment.</h2>
+        <p class="commit-line">₦1,000 is not payment for the training — the training itself is free. It's a <strong>commitment fee</strong> that filters out casual lookers and keeps this group full of people serious enough to show up and finish. That's why only <strong>action-takers</strong> get in.</p>
+
+        <div class="price-tag">Your seat today</div>
+        <div class="price-row">
+          <span class="price-new">₦1,000</span>
+        </div>
+
+        <div class="countdown" id="countdown">
+          <div class="cd-item"><div class="cd-num" id="cd-days">--</div><div class="cd-lbl">Days</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-hours">--</div><div class="cd-lbl">Hrs</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-mins">--</div><div class="cd-lbl">Min</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-secs">--</div><div class="cd-lbl">Sec</div></div>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="label">Training Days</div>
+            <div class="val">Mon – Fri</div>
+          </div>
+          <div class="meta-item warn">
+            <div class="label">Registration Closes</div>
+            <div class="val">Sunday</div>
+          </div>
+        </div>
+
+        <a class="cta-btn" href="https://wa.link/rm42fi" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.001 2C6.478 2 2 6.478 2 12c0 1.887.525 3.7 1.52 5.288L2 22l4.85-1.472A9.955 9.955 0 0012 22c5.523 0 10-4.478 10-10S17.523 2 12.001 2zm0 18.09c-1.68 0-3.31-.452-4.735-1.31l-.34-.202-3.313 1.006 1.017-3.222-.221-.33A8.075 8.075 0 013.91 12c0-4.468 3.632-8.09 8.091-8.09 4.459 0 8.09 3.622 8.09 8.09 0 4.469-3.631 8.09-8.09 8.09z"/></svg>
+          REGISTER NOW
+        </a>
+        <p class="cta-note" style="color:rgba(255,255,255,0.6);">Only 20 seats. Once they're gone, this training is closed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="reveal d0">Powered by AKURACY DIGITAL HUB.</p>
+  </div>
+</footer>
+
+<!-- Sticky mobile CTA -->
+<div class="sticky-cta">
+  <div class="wrap">
+    <a class="cta-btn" href="https://wa.link/rm42fi" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.001 2C6.478 2 2 6.478 2 12c0 1.887.525 3.7 1.52 5.288L2 22l4.85-1.472A9.955 9.955 0 0012 22c5.523 0 10-4.478 10-10S17.523 2 12.001 2zm0 18.09c-1.68 0-3.31-.452-4.735-1.31l-.34-.202-3.313 1.006 1.017-3.222-.221-.33A8.075 8.075 0 013.91 12c0-4.468 3.632-8.09 8.091-8.09 4.459 0 8.09 3.622 8.09 8.09 0 4.469-3.631 8.09-8.09 8.09z"/></svg>
+      REGISTER NOW · ₦1,000
+    </a>
+  </div>
+</div>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, {threshold:0.1, rootMargin:'0px 0px -10% 0px'});
+  revealEls.forEach(el=>io.observe(el));
+
+  const carousel = document.getElementById('carousel');
+  const slides = Array.from(carousel.querySelectorAll('.slide'));
+  const dotsWrap = document.getElementById('dots');
+  slides.forEach((_,i)=>{
+    const d = document.createElement('span');
+    if(i===0) d.classList.add('active');
+    dotsWrap.appendChild(d);
+  });
+  const dots = dotsWrap.querySelectorAll('span');
+
+  let currentIndex = 0;
+  let programmaticScroll = false;
+  let programmaticScrollEnd = null;
+
+  function renderDots(index){
+    dots.forEach((d,i)=> d.classList.toggle('active', i===index));
+  }
+
+  // Uses getBoundingClientRect for BOTH the slide and the carousel (viewport-
+  // relative), matching the same coordinate system scrollToIndex uses below.
+  // (offsetLeft was being compared against scrollLeft — two different
+  // coordinate systems, since the slides' offsetParent is .carousel-shell,
+  // not the scrolling .carousel — which made this always resolve to the
+  // wrong slide and desync the dots/loop.)
+  function nearestIndexToScroll(){
+    let closest = 0, closestDist = Infinity;
+    const carouselLeft = carousel.getBoundingClientRect().left;
+    slides.forEach((s,i)=>{
+      const slideLeft = s.getBoundingClientRect().left - carouselLeft;
+      const dist = Math.abs(slideLeft);
+      if(dist < closestDist){ closestDist = dist; closest = i; }
+    });
+    return closest;
+  }
+  function updateDots(){
+    // Ignore scroll events fired mid-flight by our own smooth scrollTo()
+    // calls — only resync from real (manual/swipe) scrolling.
+    if(programmaticScroll) return;
+    currentIndex = nearestIndexToScroll();
+    renderDots(currentIndex);
+  }
+  carousel.addEventListener('scroll', updateDots, {passive:true});
+
+  // Scrolls to a slide by index — works correctly even when slides are
+  // different widths/heights (each image keeps its own natural size).
+  function scrollToIndex(i){
+    currentIndex = (i + slides.length) % slides.length;
+    renderDots(currentIndex); // update the indicator immediately, don't wait on scroll math
+    const slide = slides[currentIndex];
+    const target = slide.getBoundingClientRect().left - carousel.getBoundingClientRect().left + carousel.scrollLeft;
+
+    programmaticScroll = true;
+    clearTimeout(programmaticScrollEnd);
+    programmaticScrollEnd = setTimeout(()=>{ programmaticScroll = false; }, 600);
+
+    carousel.scrollTo({left: Math.max(0, target), behavior:'smooth'});
+  }
+  function goNext(){ scrollToIndex(currentIndex + 1); }
+  function goPrev(){ scrollToIndex(currentIndex - 1); }
+
+  document.getElementById('prevBtn').addEventListener('click', ()=>{ goPrev(); resetAutoplay(); });
+  document.getElementById('nextBtn').addEventListener('click', ()=>{ goNext(); resetAutoplay(); });
+
+  // ===== Autoplay: cycles slides 1→2→3→4→5→1... left to right, nonstop, every 3s =====
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let autoplayTimer = null;
+  const AUTOPLAY_DELAY = 3000;
+
+  function startAutoplay(){
+    if(reduceMotion) return;
+    stopAutoplay();
+    autoplayTimer = setInterval(goNext, AUTOPLAY_DELAY);
+  }
+  function stopAutoplay(){
+    if(autoplayTimer){ clearInterval(autoplayTimer); autoplayTimer = null; }
+  }
+  function resetAutoplay(){
+    stopAutoplay();
+    setTimeout(startAutoplay, AUTOPLAY_DELAY);
+  }
+
+  ['touchstart','pointerdown','wheel'].forEach(evt=>{
+    carousel.addEventListener(evt, resetAutoplay, {passive:true});
+  });
+  carousel.addEventListener('mouseenter', stopAutoplay);
+  carousel.addEventListener('mouseleave', startAutoplay);
+
+  // Pause when the carousel scrolls out of view, resume when it's back on screen
+  const carouselVisibility = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ e.isIntersecting ? startAutoplay() : stopAutoplay(); });
+  }, {threshold:0.1});
+  carouselVisibility.observe(carousel);
+
+  // Kick things off immediately so the carousel runs nonstop from page load,
+  // even before the IntersectionObserver's first callback fires.
+  startAutoplay();
+
+  // Start pinned to slide 1, and resync once images finish loading (their
+  // width isn't known until then, which can shift slide positions).
+  carousel.scrollTo({left:0, behavior:'auto'});
+  currentIndex = 0;
+  renderDots(0);
+  window.addEventListener('load', ()=>{ carousel.scrollTo({left:0, behavior:'auto'}); currentIndex = 0; renderDots(0); });
+
+
+  // Countdown to Sunday deadline (Aug 16, 2026, 23:59 local)
+  const deadline = new Date('2026-08-16T23:59:00');
+  function updateCountdown(){
+    const now = new Date();
+    let diff = deadline - now;
+    if(diff < 0) diff = 0;
+    const d = Math.floor(diff / (1000*60*60*24));
+    const h = Math.floor((diff / (1000*60*60)) % 24);
+    const m = Math.floor((diff / (1000*60)) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+    document.getElementById('cd-days').textContent = String(d).padStart(2,'0');
+    document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
+    document.getElementById('cd-mins').textContent = String(m).padStart(2,'0');
+    document.getElementById('cd-secs').textContent = String(s).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  const vid = document.querySelector('.phone-frame video');
+  vid.addEventListener('error', ()=>{
+    const fb = document.createElement('div');
+    fb.className = 'video-fallback';
+    fb.textContent = 'ai.mp4';
+    vid.replaceWith(fb);
+  });
+</script>
+
+</body>
+</html>
